@@ -13,15 +13,17 @@
  * Returns an array of seat objects that matches the
  * "seats" sub-schema defined in models/Event.js
  */
-const generateSeats = (basePrice = 0) => {
+const generateSeats = ({
+  frontSeats,
+  middleSeats,
+  backSeats,
+  frontPrice,
+  middlePrice,
+  backPrice,
+}) => {
   const seats = [];
-  const price = Number(basePrice) || 0;
-  const frontPrice = Number((price * 1.3).toFixed(2));
-  const middlePrice = Number((price * 1.1).toFixed(2));
-  const backPrice = price;
 
-  // Front row seats
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 1; i <= frontSeats; i++) {
     seats.push({
       seatNumber: `F${i}`,
       category: "Front",
@@ -30,8 +32,7 @@ const generateSeats = (basePrice = 0) => {
     });
   }
 
-  // Middle row seats
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= middleSeats; i++) {
     seats.push({
       seatNumber: `M${i}`,
       category: "Middle",
@@ -40,8 +41,7 @@ const generateSeats = (basePrice = 0) => {
     });
   }
 
-  // Back row seats
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= backSeats; i++) {
     seats.push({
       seatNumber: `B${i}`,
       category: "Back",

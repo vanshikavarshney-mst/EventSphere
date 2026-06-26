@@ -10,36 +10,41 @@ import MyBookingsPage from "./pages/MyBookingsPage"
 import AdminEventsPage from "./pages/admin/AdminEventsPage"
 import AdminEventFormPage from "./pages/admin/AdminEventFormPage"
 import AdminUserFormPage from "./pages/admin/AdminUserFormPage"
+import AuthLayout from "./components/layout/AuthLayout"
 import NotFoundPage from "./pages/NotFoundPage"
 
 export default function App() {
 
   return (
     <Routes>
-      <Route element={<Layout />}>
-        {/* Public */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/events/:id" element={<EventDetailPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
-        {/* Authenticated users */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/bookings" element={<MyBookingsPage />} />
-        </Route>
+  {/* Login & Register WITHOUT Navbar/Footer */}
+  <Route element={<AuthLayout />}>
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/register" element={<RegisterPage />} />
+  </Route>
 
-        {/* Admin only */}
-        <Route element={<ProtectedRoute adminOnly />}>
-          <Route path="/admin/events" element={<AdminEventsPage />} />
-          <Route path="/admin/events/new" element={<AdminEventFormPage />} />
-          <Route path="/admin/events/:id/edit" element={<AdminEventFormPage />} />
-          <Route path="/admin/users/new" element={<AdminUserFormPage />} />
-        </Route>
+  {/* All other pages WITH Navbar/Footer */}
+  <Route element={<Layout />}>
+    <Route path="/" element={<Navigate to="/home" replace />} />
+    <Route path="/home" element={<HomePage />} />
+    <Route path="/events" element={<EventsPage />} />
+    <Route path="/events/:id" element={<EventDetailPage />} />
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+    <Route element={<ProtectedRoute />}>
+      <Route path="/bookings" element={<MyBookingsPage />} />
+    </Route>
+
+    <Route element={<ProtectedRoute adminOnly />}>
+      <Route path="/admin/events" element={<AdminEventsPage />} />
+      <Route path="/admin/events/new" element={<AdminEventFormPage />} />
+      <Route path="/admin/events/:id/edit" element={<AdminEventFormPage />} />
+      <Route path="/admin/users/new" element={<AdminUserFormPage />} />
+    </Route>
+
+    <Route path="*" element={<NotFoundPage />} />
+  </Route>
+
+</Routes>
   )
 }

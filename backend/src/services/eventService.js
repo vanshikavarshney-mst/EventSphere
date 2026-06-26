@@ -10,13 +10,25 @@ const ApiFeatures = require("../utils/apiFeatures");
 
 // Admin creates a new event. Seats are auto-generated at creation time.
 const createEvent = async (eventData, adminId, imageUrl) => {
-  const seats = generateSeats(eventData.price);
+  const seats = generateSeats({
+  frontSeats: eventData.frontSeats,
+  middleSeats: eventData.middleSeats,
+  backSeats: eventData.backSeats,
+  frontPrice: eventData.frontPrice,
+  middlePrice: eventData.middlePrice,
+  backPrice: eventData.backPrice,
+});
 
   const event = await eventRepository.createEvent({
     ...eventData,
-    image: imageUrl ||  "",
+    image: imageUrl || eventData.image || "",
     seats,
     createdBy: adminId,
+    seatPricing: {
+  front: eventData.frontPrice,
+  middle: eventData.middlePrice,
+  back: eventData.backPrice,
+},
   });
 
   return event;
@@ -47,6 +59,8 @@ const getEventById = async (id) => {
  */
 const getAllEvents = async (queryParams) => {
   const baseQuery = eventRepository.findAllEvents();
+  const page = Number(queryParams.page) || 1;
+  const limit = Number(queryParams.limit) || 10;
 
   const features = new ApiFeatures(baseQuery, queryParams)
     .search(["title"])
@@ -56,23 +70,57 @@ const getAllEvents = async (queryParams) => {
 
   const events = await features.query;
   const total = await eventRepository.countEvents(); // simple total count
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  return { events, total };
+  return { events, total, page, limit, totalPages };
 };
 
 // Admin updates event details (not seats directly)
 const updateEvent = async (id, updateData, imageUrl) => {
   const event = await getEventById(id);
 
-  const dataToUpdate = { ...updateData };
+  // Basic fields
+  event.title = updateData.title;
+  event.description = updateData.description;
+  event.venue = updateData.venue;
+  event.date = updateData.date;
+  event.category = updateData.category;
+  event.status = updateData.status;
+
   if (imageUrl) {
-    dataToUpdate.image = imageUrl;
-  }
+  event.image = imageUrl;
+} else if (updateData.image) {
+  event.image = updateData.image;
+}
 
-  const updatedEvent = await eventRepository.updateEvent(id, dataToUpdate);
-  return updatedEvent;
+  // Update event pricing
+  event.seatPricing = {
+    front: Number(updateData.frontPrice),
+    middle: Number(updateData.middlePrice),
+    back: Number(updateData.backPrice),
+  };
+
+  // Update prices of AVAILABLE seats only
+  event.seats.forEach((seat) => {
+    if (seat.status === "Available") {
+      if (seat.category === "Front") {
+        seat.price = Number(updateData.frontPrice);
+      }
+
+      if (seat.category === "Middle") {
+        seat.price = Number(updateData.middlePrice);
+      }
+
+      if (seat.category === "Back") {
+        seat.price = Number(updateData.backPrice);
+      }
+    }
+  });
+
+  await event.save();
+
+  return event;
 };
-
 // Admin deletes an event
 const deleteEvent = async (id) => {
   const event = await getEventById(id); // throws 404 if not found

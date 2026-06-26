@@ -10,18 +10,21 @@ const mongoose = require("mongoose");
 const seatSchema = new mongoose.Schema({
   seatNumber: {
     type: String,
-    required: true, // e.g. "F1", "M12", "B30"
+    required: true,
   },
+
   category: {
     type: String,
     enum: ["Front", "Middle", "Back"],
     required: true,
   },
+
   status: {
     type: String,
     enum: ["Available", "Reserved"],
     default: "Available",
   },
+
   price: {
     type: Number,
     default: 0,
@@ -69,10 +72,20 @@ const eventSchema = new mongoose.Schema(
 
     // Price per seat. Used only for simple revenue analytics
     // on the admin dashboard (no real payment gateway involved).
-    price: {
+    seatPricing: {
+    front: {
       type: Number,
-      default: 0,
+      required: true,
     },
+    middle: {
+      type: Number,
+      required: true,
+    },
+    back: {
+      type: Number,
+      required: true,
+    },
+  },
 
     seats: [seatSchema],
 

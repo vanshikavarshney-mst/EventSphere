@@ -25,16 +25,22 @@ const createEvent = async (req, res, next) => {
 // GET /api/events  (supports ?search, ?category, ?status, ?date, ?page, ?limit, ?sort)
 const getAllEvents = async (req, res, next) => {
   try {
-    const { events, total } = await eventService.getAllEvents(req.query);
+    const { events, total, page, limit, totalPages } = await eventService.getAllEvents(req.query);
 
     res.status(200).json({
       success: true,
       message: "Events fetched successfully",
+      events,
+      total,
+      page,
+      limit,
+      totalPages,
       data: events,
       meta: {
         total,
-        page: Number(req.query.page) || 1,
-        limit: Number(req.query.limit) || 10,
+        page,
+        limit,
+        totalPages,
       },
     });
   } catch (error) {

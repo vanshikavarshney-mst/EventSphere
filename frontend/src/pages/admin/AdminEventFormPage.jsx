@@ -16,10 +16,13 @@ const emptyForm = {
   category: "Music",
   date: "",
   location: "",
-  price: "",
+  frontPrice: "",
+  middlePrice: "",
+  backPrice: "",
   imageUrl: "",
-  rows: "",
-  seatsPerRow: "",
+  frontSeats: 20,
+  middleSeats: 30,
+backSeats: 50,
 }
 
 
@@ -61,10 +64,13 @@ export default function AdminEventFormPage() {
           category: e.category || "Music",
           date: toLocalInput(e.date),
           location: e.location || e.venue || "",
-          price: e.price ?? "",
+          frontPrice: e.frontPrice ?? "",
+          middlePrice: e.middlePrice ?? "",
+          backPrice: e.backPrice ?? "",
           imageUrl: e.image || "",
-          rows: e.rows ?? "",
-          seatsPerRow: e.seatsPerRow ?? "",
+          frontSeats: e.frontSeats ?? 20,
+          middleSeats: e.middleSeats ?? 30,
+          backSeats: e.backSeats ?? 50,
 })
         setExistingImage(resolveImageUrl(e.image || e.imageUrl))
       })
@@ -107,12 +113,18 @@ export default function AdminEventFormPage() {
     if (!form.title.trim()) next.title = "Title is required."
     if (!form.date) next.date = "Date is required."
     if (!form.location.trim()) next.location = "Location is required."
-    if (form.price === "" || Number(form.price) < 0) next.price = "Enter a valid price."
-    if (!isEdit) {
-      if (!form.rows || Number(form.rows) < 1) next.rows = "Rows must be at least 1."
-      if (!form.seatsPerRow || Number(form.seatsPerRow) < 1)
-        next.seatsPerRow = "Seats per row must be at least 1."
-    }
+    if (!form.frontPrice || Number(form.frontPrice) <= 0) {
+            next.frontPrice = "Enter a valid front price."
+          }
+
+    if (!form.middlePrice || Number(form.middlePrice) <= 0) {
+          next.middlePrice = "Enter a valid middle price."
+}
+
+    if (!form.backPrice || Number(form.backPrice) <= 0) {
+          next.backPrice = "Enter a valid back price."
+}
+    
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -128,11 +140,13 @@ export default function AdminEventFormPage() {
     fd.append("category", form.category)
     fd.append("date", new Date(form.date).toISOString())
     fd.append("venue", form.location.trim())
-    fd.append("price", String(Number(form.price)))
+    fd.append("frontPrice", String(Number(form.frontPrice)))
+    fd.append("middlePrice", String(Number(form.middlePrice)))
+    fd.append("backPrice", String(Number(form.backPrice)))
     fd.append("image", form.imageUrl)
-    if (form.rows !== "") fd.append("rows", String(Number(form.rows)))
-    if (form.seatsPerRow !== "") fd.append("seatsPerRow", String(Number(form.seatsPerRow)))
-    if (imageFile) fd.append("image", imageFile)
+    fd.append("frontSeats", String(Number(form.frontSeats)))
+fd.append("middleSeats", String(Number(form.middleSeats)))
+fd.append("backSeats", String(Number(form.backSeats)))
 
     try {
       if (isEdit) {
@@ -178,47 +192,8 @@ export default function AdminEventFormPage() {
         className="mt-8 flex flex-col gap-5 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-8"
         noValidate
       >
-        {/* Image */}
-        {/* <div>
-          <Label>Event image</Label>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            onChange={onPickImage}
-            className="hidden"
-            id="event-image"
-          />
-          {preview ? (
-            <div className="relative overflow-hidden rounded-[var(--radius)] border border-[var(--color-border)]">
-              <img src={preview || "/placeholder.svg"} alt="Event preview" className="aspect-[16/9] w-full object-cover" />
-              <div className="absolute right-3 top-3 flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  Change
-                </Button>
-                {imagePreview && (
-                  <Button type="button" variant="danger" size="sm" onClick={clearImage}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-2 rounded-[var(--radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-2)]/40 text-[var(--color-muted)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-foreground)]"
-            >
-              <ImagePlus className="h-8 w-8" />
-              <span className="text-sm">Click to upload an image</span>
-            </button>
-          )}
-        </div> */}
+        
+
         <div>
   <Label htmlFor="imageUrl">Image URL</Label>
 
@@ -266,20 +241,51 @@ export default function AdminEventFormPage() {
               ))}
             </Select>
           </div>
-          <div>
-            <Label htmlFor="price">Price per seat (INR)</Label>
-            <Input
-              id="price"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.price}
-              onChange={update("price")}
-              error={errors.price}
-            />
-            <FieldError>{errors.price}</FieldError>
           </div>
-        </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+  <div>
+    <Label htmlFor="frontPrice">Front Price (₹)</Label>
+    <Input
+      id="frontPrice"
+      type="number"
+      min="1"
+      value={form.frontPrice}
+      onChange={update("frontPrice")}
+      error={errors.frontPrice}
+      placeholder="3000"
+    />
+    <FieldError>{errors.frontPrice}</FieldError>
+  </div>
+
+  <div>
+    <Label htmlFor="middlePrice">Middle Price (₹)</Label>
+    <Input
+      id="middlePrice"
+      type="number"
+      min="1"
+      value={form.middlePrice}
+      onChange={update("middlePrice")}
+      error={errors.middlePrice}
+      placeholder="2000"
+    />
+    <FieldError>{errors.middlePrice}</FieldError>
+  </div>
+
+  <div>
+    <Label htmlFor="backPrice">Back Price (₹)</Label>
+    <Input
+      id="backPrice"
+      type="number"
+      min="1"
+      value={form.backPrice}
+      onChange={update("backPrice")}
+      error={errors.backPrice}
+      placeholder="1000"
+    />
+    <FieldError>{errors.backPrice}</FieldError>
+  </div>
+</div>
+        
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -305,7 +311,7 @@ export default function AdminEventFormPage() {
           </div>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        {/* <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <Label htmlFor="rows">Rows</Label>
             <Input
@@ -337,7 +343,52 @@ export default function AdminEventFormPage() {
             />
             <FieldError>{errors.seatsPerRow}</FieldError>
           </div>
-        </div>
+        </div> */}
+        <div className="grid gap-5 sm:grid-cols-3">
+  <div>
+    <Label htmlFor="frontSeats">Front Seats</Label>
+    <Input
+      id="frontSeats"
+      type="number"
+      min="1"
+      value={form.frontSeats}
+      onChange={update("frontSeats")}
+      disabled={isEdit}
+    />
+  </div>
+
+  <div>
+    <Label htmlFor="middleSeats">Middle Seats</Label>
+    <Input
+      id="middleSeats"
+      type="number"
+      min="1"
+      onChange={update("middleSeats")}
+      value={form.middleSeats}
+      disabled={isEdit}
+    />
+  </div>
+
+  <div>
+  <Label>Back Seats</Label>
+
+  <Input
+    id="backSeats"
+    type="number"
+    min="1"
+    value={form.backSeats}
+    onChange={update("backSeats")}
+    disabled={isEdit}
+  />
+
+  {isEdit && (
+    <p className="mt-1 text-xs text-gray-500">
+      Seat layout cannot be changed once the event is created.
+    </p>
+  )}
+</div>
+  
+</div>
 
         <div className="mt-2 flex gap-3">
           <Button

@@ -26,7 +26,7 @@ export default function EventDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const toast = useToast()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isAdmin } = useAuth()
 
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +71,7 @@ export default function EventDetailPage() {
   const availableCount = seats.filter((s) => s.status === "available").length
 
   const toggleSeat = (seat) => {
-    if (seat.status === "booked") return
+    if (isAdmin || seat.status === "booked") return
     setSelected((prev) =>
       prev.includes(seat.id) ? prev.filter((x) => x !== seat.id) : [...prev, seat.id],
     )
@@ -82,6 +82,11 @@ export default function EventDetailPage() {
     navigate("/login", {
       state: { from: { pathname: `/events/${id}` } },
     })
+    return
+  }
+
+  if (isAdmin) {
+    toast.info("Admins can view events, but only regular users can book tickets.")
     return
   }
 
@@ -202,16 +207,38 @@ export default function EventDetailPage() {
           )}
 
           <section className="rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
-            <h2 className="mb-1 text-xl font-semibold">Select your seats</h2>
-            <p className="mb-6 text-sm text-[var(--color-muted)]">
-              Tap an available seat to add it to your order.
-            </p>
-            <SeatLayout
-  seats={seats}
-  selected={selected}
-  onToggle={toggleSeat}
-/>
-          </section>
+  <h2 className="mb-1 text-xl font-semibold">Select your seats</h2>
+
+  <p className="mb-4 text-sm text-[var(--color-muted)]">
+    Tap an available seat to add it to your order.
+  </p>
+
+  {/* Category Pricing */}
+  <div className="mb-6 flex flex-wrap gap-4 text-sm">
+    <span className="rounded-full bg-green-100 px-3 py-1">
+      Front ₹{event?.seatPricing?.front}
+    </span>
+
+    <span className="rounded-full bg-blue-100 px-3 py-1">
+      Middle ₹{event?.seatPricing?.middle}
+    </span>
+
+    <span className="rounded-full bg-yellow-100 px-3 py-1">
+      Back ₹{event?.seatPricing?.back}
+    </span>
+  </div>
+  <div className="mb-8">
+  <div className="mx-auto w-3/4 rounded-lg bg-slate-300 py-3 text-center font-semibold tracking-widest">
+    SCREEN
+  </div>
+</div>
+  <SeatLayout
+    seats={seats}
+    selected={selected}
+    onToggle={toggleSeat}
+    readOnly={isAdmin}
+  />
+</section>
         </div>
 
         {/* Right: order summary (sticky) */}
@@ -232,7 +259,12 @@ export default function EventDetailPage() {
                   >
                     <span className="flex items-center gap-2">
                       <Armchair className="h-4 w-4 text-[var(--color-accent)]" />
-                      Seat {s.label}
+                      <div>
+  <div>Seat {s.label}</div>
+  <div className="text-xs text-[var(--color-muted)]">
+    {s.category}
+  </div>
+</div>
                     </span>
                     <span className="font-medium">{formatCurrency(s.price || event.price)}</span>
                   </li>
@@ -250,11 +282,17 @@ export default function EventDetailPage() {
             <Button
   onClick={startBooking}
   className="mt-5 w-full"
-  disabled={availableCount === 0}
+  disabled={availableCount === 0 || isAdmin}
 >
   <Ticket className="h-4 w-4" />
-  {availableCount === 0 ? "Sold out" : "Book Now"}
+  {availableCount === 0 ? "Sold out" : isAdmin ? "Admin view only" : "Book Now"}
 </Button>
+
+            {isAdmin && (
+              <p className="mt-3 text-center text-xs text-[var(--color-muted)]">
+                Admin accounts can view events but cannot place bookings.
+              </p>
+            )}
 
             {!isAuthenticated && (
               <p className="mt-3 text-center text-xs text-[var(--color-muted)]">

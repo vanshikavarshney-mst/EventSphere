@@ -57,7 +57,16 @@ export default function EventCard({ event }) {
 
         <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border)] pt-4">
           <span className="text-lg font-bold text-[var(--color-foreground)]">
-            {formatCurrency(event.price)}
+            <p>
+  Starting from{" "}
+  {formatCurrency(
+    Math.min(
+      event?.seatPricing?.front || Infinity,
+      event?.seatPricing?.middle || Infinity,
+      event?.seatPricing?.back || Infinity
+    )
+  )}
+</p>
           </span>
           {typeof available === "number" && !soldOut && (
             <span className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">

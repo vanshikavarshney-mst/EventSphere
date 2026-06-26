@@ -95,7 +95,7 @@ export default function AdminEventsPage() {
                   <th className="px-5 py-3 font-medium">Event</th>
                   <th className="px-5 py-3 font-medium">Date</th>
                   <th className="px-5 py-3 font-medium">Location</th>
-                  <th className="px-5 py-3 font-medium">Price</th>
+                 
                   <th className="px-5 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
@@ -140,7 +140,7 @@ export default function AdminEventsPage() {
                           <span className="line-clamp-1">{e.location || e.venue || "TBA"}</span>
                         </span>
                       </td>
-                      <td className="px-5 py-3 font-medium">{formatCurrency(e.price)}</td>
+                      
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-2">
                           <Button

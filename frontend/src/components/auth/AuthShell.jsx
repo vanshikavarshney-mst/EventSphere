@@ -11,11 +11,25 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           </span>
           <span className="text-lg font-semibold">EventSphere</span>
         </Link>
+
         <h1 className="text-2xl font-bold">{title}</h1>
-        {subtitle && <p className="mt-1.5 text-sm text-[var(--color-muted)]">{subtitle}</p>}
-        <div className="mt-6">{children}</div>
+
+        {subtitle && (
+          <p className="mt-1.5 text-sm text-[var(--color-muted)]">
+            {subtitle}
+          </p>
+        )}
+
+        <div className="mt-6">
+          {children}
+        </div>
+
+        {footer && (
+          <div className="mt-6 border-t border-[var(--color-border)] pt-4 text-center text-sm text-[var(--color-muted)]">
+            {footer}
+          </div>
+        )}
       </div>
-      {footer && <div className="mt-5 text-center text-sm text-[var(--color-muted)]">{footer}</div>}
     </div>
   )
 }

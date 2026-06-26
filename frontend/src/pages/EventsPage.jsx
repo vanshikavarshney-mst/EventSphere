@@ -69,19 +69,31 @@ export default function EventsPage() {
       .list(query)
       .then((data) => {
         if (!active) return
-        const list = data.events || data.data || data.results || []
-        setEvents(list)
+        const list = Array.isArray(data?.events)
+          ? data.events
+          : Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.results)
+              ? data.results
+              : []
+        const meta = data?.meta || {}
         const tp =
-          data.totalPages ||
-          (data.total && data.limit ? Math.ceil(data.total / data.limit) : null) ||
-          (data.total ? Math.ceil(data.total / LIMIT) : 1)
+          data?.totalPages ??
+          meta?.totalPages ??
+          (meta?.total && meta?.limit ? Math.ceil(meta.total / meta.limit) : null) ??
+          (data?.total && data?.limit ? Math.ceil(data.total / data.limit) : null) ??
+          (data?.total ? Math.ceil(data.total / LIMIT) : 1)
+
+        setEvents(list)
         setTotalPages(tp || 1)
-        setTotal(data.total ?? list.length)
+        setTotal(meta?.total ?? data?.total ?? list.length)
       })
       .catch((err) => {
         if (!active) return
         setError(err.message || "Failed to load events.")
         setEvents([])
+        setTotalPages(1)
+        setTotal(0)
       })
       .finally(() => active && setLoading(false))
     return () => {

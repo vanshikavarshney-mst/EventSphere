@@ -5,10 +5,12 @@ import { eventsApi } from "../api/events"
 import EventCard from "../components/events/EventCard"
 import Button from "../components/ui/Button"
 import { Spinner } from "../components/ui/Misc"
+import { useAuth } from "../context/AuthContext"
 
 export default function HomePage() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
 
   useEffect(() => {
     let active = true
@@ -51,10 +53,12 @@ export default function HomePage() {
               <Search className="h-5 w-5" />
               Browse Events
             </Button>
+            {!user &&(
             <Button as={Link} to="/register" size="lg" variant="outline">
               Create Account
               <ArrowRight className="h-5 w-5" />
             </Button>
+            )}
           </div>
         </div>
       </section>
